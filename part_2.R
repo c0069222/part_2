@@ -209,3 +209,37 @@ model %>% evaluate_generator(test_image_array_gen,
 
 # accuracy of 56% which is only 2% poorer than the training and validation dataset ####
 
+
+# creating a confusion matrix to resolve misleading accuracy scores with unbalanced data ####
+
+predictions <- model %>% 
+  predict_generator(
+    generator = test_image_array_gen,
+    steps = test_image_array_gen$n
+  ) %>% as.data.frame
+
+colnames(predictions) <- spp_list
+
+# create a 3 x 3 table to store data ####
+
+confusion <- data.frame(matrix(0, nrow=3, ncol=3), row.names=spp_list)
+colnames(confusion) <- spp_list
+
+obs_values <- factor(c(rep(spp_list[1],100),
+                       rep(spp_list[2], 100),
+                       rep(spp_list[3], 100)))
+
+pred_values <- factor(colnames(predictions)[apply(predictions, 1, which.max)])
+
+# load packages ####
+
+library(caret)
+
+conf_mat <- confusionMatrix(data = pred_values, reference = obs_values)
+
+# view confusion matrix ####
+
+
+conf_mat
+
+
